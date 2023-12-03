@@ -12,6 +12,7 @@ marshmallow = "*"
 pyjwt = "*"
 flask-cors = "*"
 firebase-admin = "*"
+gunicorn = "*"
 
 [dev-packages]
 
