@@ -11,6 +11,7 @@ flask-bcrypt = "*"
 marshmallow = "*"
 pyjwt = "*"
 flask-cors = "*"
+firebase-admin = "*"
 
 [dev-packages]
 

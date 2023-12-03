@@ -5,6 +5,11 @@ from flask_cors import CORS
 from common.bcrypt import bcrypt
 from auth.apis import auth_blueprint
 from todolist.apis import todo_blueprint
+from firebase_admin import credentials,initialize_app
+
+cred = credentials.Certificate("key.json")
+default_app = initialize_app(cred)
+
 
 app = Flask(__name__)
 
@@ -29,6 +34,3 @@ bcrypt.init_app(app)
 
 app.register_blueprint(auth_blueprint, url_prefix="/auth")
 app.register_blueprint(todo_blueprint, url_prefix="/todolist")
-
-# with app.app_context():
-#     db_init()

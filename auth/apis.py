@@ -1,7 +1,7 @@
 import re
 from flask import Flask, request, jsonify, make_response
 from common.bcrypt import bcrypt
-from marshmallow import Schema, fields, ValidationError, validates
+from marshmallow import Schema, fields, ValidationError,validates
 from auth.model import Auth
 import jwt, os
 from datetime import datetime, timedelta
@@ -20,7 +20,19 @@ class AuthRegistrationSchema(Schema):
     def validate_email(self, value):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
             raise ValidationError("Your Email Format is Invalid")
-        
+    
+    @validates('username')
+    def validate_username(self, value):
+        existing_user = Auth.query.filter_by(username=value).first()
+        if existing_user:
+            raise ValidationError("Username already in use. Please choose a different one.")
+       
+    @validates('email')
+    def validate_email_unique(self, value):
+        existing_user = Auth.query.filter_by(email=value).first()
+        if existing_user:
+            raise ValidationError("Email already in use. Please choose a different one.")
+         
 @auth_blueprint.route('/registration', methods=['POST'])
 def registration():
     data = request.get_json()
@@ -29,6 +41,14 @@ def registration():
         data = schema.load(data)
     except ValidationError as err:
         return {"error": err.messages}, 400
+    
+    existing_username = Auth.query.filter_by(username=data['username']).first()
+    existing_email = Auth.query.filter_by(email=data['email']).first()
+    
+    if existing_username:
+        return {"error": "Username already in use. Please choose a different one."}, 400
+    elif existing_email:
+        return {"error": "Email already in use. Please choose a different one."}, 400
     
     hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
     new_user = Auth(username=data['username'], email=data['email'], role=data['role'],password=hashed_password)
@@ -81,7 +101,7 @@ blacklisted_tokens = set()
 def logout():
     token = request.headers.get('Authorization')
 
-    if not token or not token.startswith('Bearer '):
+    if not token or not token.startswith('Bearer'):
         return {"error": "Invalid token"}, 401
 
     token = token.split(' ')[1]

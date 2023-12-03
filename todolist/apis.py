@@ -5,7 +5,7 @@ from db import db
 import jwt
 import os
 from todolist.model import Todo
-from authMiddleware.apis import role_required
+from middleware.apis import role_required
 
 todo_blueprint = Blueprint('todo', __name__)
 
@@ -22,6 +22,7 @@ class UserRole(Enum):
 @role_required(UserRole.USER.value)
 def create_todo():
     token = request.headers.get('Authorization')
+    print(token)
     
     if not token or not token.startswith('Bearer '):
         return {"error": "Invalid token format"}, 400
