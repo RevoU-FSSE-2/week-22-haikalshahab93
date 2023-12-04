@@ -7,10 +7,6 @@ from auth.apis import auth_blueprint
 from todolist.apis import todo_blueprint
 from firebase_admin import credentials,initialize_app
 
-cred = credentials.Certificate("key.json")
-default_app = initialize_app(cred)
-
-
 app = Flask(__name__)
 
 CORS(app)
